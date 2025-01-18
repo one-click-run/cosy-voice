@@ -59,13 +59,19 @@ echo 下载模型>%STAGE_FILE%
 if not exist pretrained_models mkdir pretrained_models
 if not exist pretrained_models\CosyVoice-300M-SFT git clone https://www.modelscope.cn/iic/CosyVoice-300M-SFT.git pretrained_models/CosyVoice-300M-SFT
 if %ERRORLEVEL% neq 0 echo 致命错误 && pause && exit
+if not exist pretrained_models\CosyVoice2-0.5B git clone https://www.modelscope.cn/iic/CosyVoice2-0.5B.git pretrained_models/CosyVoice2-0.5B
+if %ERRORLEVEL% neq 0 echo 致命错误 && pause && exit
 
 :RUN
-echo 运行
-echo 运行>%STAGE_FILE%
+echo 请选择模型:
+echo "1: 使用 SFT 模型（具有预训练音色）"
+echo "2: 用 V2 模型（只能进行语音复刻）"
+set /p modelChoice="请输入选择的数字 (1 或 2): "
 if exist "%USERPROFILE%\.cache\modelscope" rmdir /s /q "%USERPROFILE%\.cache\modelscope"
 call .\OCR-portable-conda\Scripts\activate.bat
-python .\CosyVoice\webui.py --model_dir pretrained_models\CosyVoice-300M-SFT
+if "%modelChoice%"=="1" python .\CosyVoice\webui.py --model_dir pretrained_models\CosyVoice-300M-SFT
+if "%modelChoice%"=="2" python .\CosyVoice\webui.py --model_dir pretrained_models\CosyVoice2-0.5B
+if not "%modelChoice%"=="1" if not "%modelChoice%"=="2" echo 无效的选择，请重新运行程序并选择正确的模型 && pause && exit
 if %ERRORLEVEL% neq 0 echo 致命错误 && pause && exit
 
 pause
